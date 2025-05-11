@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jony's Smart Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: url('https://source.unsplash.com/1600x900/?space,galaxy') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            text-shadow: 2px 2px 5px black;
+            background: black;
+            overflow: hidden;
+            position: relative;
+        }
+        h1 {
+            font-size: 32px;
+            margin-top: 20px;
+        }
+        h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            position: relative;
+            z-index: 10;
+        }
+        .btn {
+            display: block;
+            width: 80%;
+            padding: 15px;
+            margin: 10px auto;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 20px;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .assignments {
+            display: none;
+            margin-top: 10px;
+        }
+        .assignment {
+            margin: 5px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+        }
+        .assignment a {
+            color: white;
+            text-decoration: none;
+        }
+        .assignment a:hover {
+            text-decoration: underline;
+        }
+        .comment-box {
+            margin-top: 20px;
+        }
+        .instagram {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #E4405F;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 18px;
+        }
+        
+        /* Creating multiple moving stars */
+        @keyframes move-stars {
+            from { transform: translateY(0); }
+            to { transform: translateY(-100vh); }
+        }
+        
+        .stars {
+            width: 2px;
+            height: 2px;
+            background: white;
+            position: absolute;
+            animation: move-stars linear infinite;
+            opacity: 0.8;
+        }
+        
+        /* Generate multiple stars */
+        .star-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+        
+        .star-container div {
+            position: absolute;
+            background: white;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            animation: move-stars linear infinite;
+        }
+        
+        /* Random placement for stars */
+        .star-container div:nth-child(1) { top: 10%; left: 20%; animation-duration: 5s; }
+        .star-container div:nth-child(2) { top: 40%; left: 80%; animation-duration: 6s; }
+        .star-container div:nth-child(3) { top: 70%; left: 30%; animation-duration: 4s; }
+        .star-container div:nth-child(4) { top: 90%; left: 60%; animation-duration: 7s; }
+        .star-container div:nth-child(5) { top: 50%; left: 10%; animation-duration: 5s; }
+        .star-container div:nth-child(6) { top: 20%; left: 50%; animation-duration: 8s; }
+        .star-container div:nth-child(7) { top: 85%; left: 75%; animation-duration: 3s; }
+        .star-container div:nth-child(8) { top: 30%; left: 95%; animation-duration: 6s; }
+        .star-container div:nth-child(9) { top: 60%; left: 40%; animation-duration: 4.5s; }
+        .star-container div:nth-child(10) { top: 15%; left: 5%; animation-duration: 7s; }
+        
+        /* Course Grade Section Styles */
+        .grade-section {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            width: 200px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .grade-title {
+            font-size: 18px;
+            margin-top: 0;
+            margin-bottom: 5px;
+            color: #ff4d94;
+        }
+        
+        .grade-value {
+            font-size: 42px;
+            font-weight: bold;
+            margin: 5px 0;
+            color: #ff4d94;
+        }
+        
+        .grade-details {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 14px;
+        }
+        
+        .grade-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .grade-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .grade-date {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        .grade-button {
+            background: #ff4d94;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .grade-button:hover {
+            background: #d83a7d;
+        }
+        
+        @media (max-width: 768px) {
+            .grade-section {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px auto;
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="star-container">
+        <div></div><div></div><div></div><div></div><div></div>
+        <div></div><div></div><div></div><div></div><div></div>
+    </div>
+    
+    <!-- Course Grade Section -->
+    <div class="grade-section">
+        <h3 class="grade-title">Current Course Grade</h3>
+        <div class="grade-value">93</div>
+        <div class="grade-details">
+            <div class="grade-row">
+                <span>Week 2 - Find Me!</span>
+                <span>3/3</span>
+            </div>
+            <div class="grade-row">
+                <span>Week 3 - CLI</span>
+                <span>3/3</span>
+            </div>
+            <div class="grade-row">
+                <span>Week 4 - Quiz 1</span>
+                <span>5/5</span>
+            </div>
+            <div class="grade-row">
+                <span>Week 4 - Virtual Library</span>
+                <span>3/3</span>
+            </div>
+            <div class="grade-row">
+                <span>Week 5 - Idea</span>
+                <span>3/3</span>
+            </div>
+        </div>
+        <div class="grade-date">Last updated: 11.05.2025, 17:28:00</div>
+        <button class="grade-button" onclick="window.location.href='https://jonycap.github.io/Snuggly-web-spot/updated-cryptography-showcase.html'">Cryptography Tool</button>
+    </div>
+
+    <h1>Welcome to My Smart Hub</h1>
+    <h2>Jony's Assignment Center (221 78 37)</h2>
+
+    <div class="container">
+        <a href="#" class="btn" onclick="toggleAssignments('logistics')">📦 Global Logistics</a>
+        <div id="logistics" class="assignments">
+            <div class="assignment"><a href="https://excalidraw.com/#room=b468e6a21498408484d7,An9CUMKcCUUqtMzfSEucQQ" target="_blank">Assignment 1: Excalidraw</a></div>
+            <div class="assignment">📌 Assignment 2: Logistics Flowchart Builder <a href="https://jonycap.github.io/Snuggly-web-spot/logistics-flowchart-builder.html" target="_blank">View Submission</a></div>
+            <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/Lead_Time_Analysis.html" target="_blank">Lead time analysis</a></div>
+            <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/cosmic-courier-with-instructions.html" target="_blank">Assignment 4 TSP GAME</a></div>
+            <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/star_map_game_plan.html" target="_blank">Assignment 5 game plan design</a></div>
+            <div class="assignment"><a href="#" target="_blank">Assignment 6</a></div>
+            <div class="assignment"><a href="#" target="_blank">Assignment 7</a></div>
+            <div class="assignment"><a href="#" target="_blank">Assignment 8</a></div>
+            <div class="assignment"><a href="#" target="_blank">Assignment 9</a></div>
+            <div class="assignment"><a href="#" target="_blank">Assignment 10</a></div>
+        </div>
+           
+ <a href="#" class="btn" onclick="toggleAssignments('digital')">💻 Digital Literacy</a>
+        <div id="digital" class="assignments">
+            <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/findme1.html" target="_blank">Assignment 1: Find Me Report</a></div>
+            <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/CLIDungoenCrawlerReport.html" target="_blank">Assignment 2 CLI Dungeon Crawler</a></div>
+            <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/Virtual_library_analysis.html" target="_blank">Assignment 3 virtual library</a></div>
+            <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/cryptography-showcase-enhanced.html" target="_blank">Assignment 4 Cryptography</a></div>
+            <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/updated-cryptography-showcase.html" target="_blank">Assignment 5 Updated Cryptography with documentation</a></div>
+            <div class="assignment"><a href="#" target="_blank">Assignment 6</a></div>
+            <div class="assignment"><a href="#" target="_blank">Assignment 7</a></div>
+            <div class="assignment"><a href="#" target="_blank">Assignment 8</a></div>
+            <div class="assignment"><a href="#" target="_blank">Assignment 9</a></div>
+            <div class="assignment"><a href="#" target="_blank">Assignment 10</a></div>
+        </div>
+
+        <div class="comment-box">
+            <h3>Leave a Comment</h3>
+            <textarea id="comment" rows="4" cols="50" placeholder="Write your feedback here..."></textarea>
+            <br>
+            <button onclick="saveComment()">Submit</button>
+        </div>
+
+        <a href="https://www.instagram.com/invites/contact/?igsh=1rxyb0zhkernz&utm_content=svhaxzx" class="instagram" target="_blank">📸 Contact me on Instagram</a>
+    </div>
+
+    <script>
+        function toggleAssignments(id) {
+            var section = document.getElementById(id);
+            if (section.style.display === "block") {
+                section.style.display = "none";
+            } else {
+                section.style.display = "block";
+            }
+        }
+
+        function saveComment() {
+            var comment = document.getElementById("comment").value;
+            if (comment) {
+                alert("Your comment has been saved: " + comment);
+            } else {
+                alert("Please write something before submitting!");
+            }
+        }
+
+        // Fix for initial display - this makes sure assignments are properly hidden initially
+        window.onload = function() {
+            document.getElementById('logistics').style.display = "none";
+            document.getElementById('digital').style.display = "none";
+        };
+    </script>
+</body>
+</html>
