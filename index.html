@@ -263,30 +263,51 @@
 
         // Function to fetch grade data from Google Sheet
         function fetchGradeData() {
-            const apiUrl = 'https://script.google.com/macros/s/AKfycbxf0vxKemXQBqFRSvZK2HoHjRKe3AlLEs3xQODNpqHMKUvy_s18YjA20CkYCk2YnSNP/exec';
+            const apiUrl = 'https://script.google.com/macros/s/AKfycbyZt4t81_XD19AnzKft_Kuh1Sk_UmWJU2Ud6ikBDe_TYDqOBvRyIRzZBPFWd_N7PffX/exec';
             
-            fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
+            // Using JSONP approach with a script tag to bypass CORS
+            const script = document.createElement('script');
+            script.src = `${apiUrl}?callback=handleGradeData`;
+            document.body.appendChild(script);
+            
+            // Set a timeout to handle if the script doesn't load
+            setTimeout(() => {
+                if (document.getElementById('grade-display').textContent === 'Error' || 
+                    document.getElementById('grade-display').innerHTML.includes('loading')) {
+                    document.getElementById('grade-display').innerHTML = 'Error';
+                    document.getElementById('last-updated').innerHTML = 'Could not load data';
+                }
+            }, 10000); // 10 second timeout
+        }
+        
+        // Callback function for JSONP
+        function handleGradeData(data) {
+            try {
+                // Check if we have valid data
+                if (data && data.grade !== undefined) {
                     // Update the grade display
                     document.getElementById('grade-display').innerHTML = data.grade;
                     
                     // Format date for display
-                    const updateDate = new Date(data.lastUpdated);
+                    let updateDate;
+                    if (data.lastUpdated) {
+                        updateDate = new Date(data.lastUpdated);
+                    } else {
+                        updateDate = new Date(); // Use current date if not provided
+                    }
+                    
                     const formattedDate = `${updateDate.getDate().toString().padStart(2, '0')}.${(updateDate.getMonth() + 1).toString().padStart(2, '0')}.${updateDate.getFullYear()}, ${updateDate.getHours().toString().padStart(2, '0')}:${updateDate.getMinutes().toString().padStart(2, '0')}:${updateDate.getSeconds().toString().padStart(2, '0')}`;
                     
                     document.getElementById('last-updated').innerHTML = `Last updated: ${formattedDate}`;
-                })
-                .catch(error => {
-                    console.error('Error fetching grade data:', error);
-                    document.getElementById('grade-display').innerHTML = 'Error';
-                    document.getElementById('last-updated').innerHTML = 'Could not load data';
-                });
+                } else {
+                    throw new Error('Invalid data received');
+                }
+            } catch (error) {
+                console.error('Error processing grade data:', error);
+                document.getElementById('grade-display').innerHTML = 'Error';
+                document.getElementById('last-updated').innerHTML = 'Could not load data';
+            }
+        }
         }
 
         // Fix for initial display and load grade data
