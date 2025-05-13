@@ -157,22 +157,6 @@
             margin-top: 5px;
         }
         
-        .grade-button {
-            background: #ff4d94;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 10px;
-            margin-top: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-        
-        .grade-button:hover {
-            background: #d83a7d;
-        }
-        
         @media (max-width: 768px) {
             .grade-section {
                 position: relative;
@@ -182,6 +166,21 @@
                 width: 80%;
             }
         }
+        
+        /* Loading animation for grade section */
+        .loading {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #ff4d94;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -190,12 +189,13 @@
         <div></div><div></div><div></div><div></div><div></div>
     </div>
     
-    <!-- Simplified Course Grade Section -->
+    <!-- DL Course Grade Section -->
     <div class="grade-section">
-        <h3 class="grade-title">Current Course Grade</h3>
-        <div class="grade-value">93</div>
-        <div class="grade-date">Last updated: 11.05.2025, 17:28:00</div>
-        <button class="grade-button" onclick="window.location.href='https://jonycap.github.io/Snuggly-web-spot/updated-cryptography-showcase.html'">Cryptography Tool</button>
+        <h3 class="grade-title">DL Current Course Grade</h3>
+        <div class="grade-value" id="grade-display">
+            <div class="loading"></div>
+        </div>
+        <div class="grade-date" id="last-updated">Loading...</div>
     </div>
 
     <h1>Welcome to My Smart Hub</h1>
@@ -216,7 +216,7 @@
             <div class="assignment"><a href="#" target="_blank">Assignment 10</a></div>
         </div>
            
- <a href="#" class="btn" onclick="toggleAssignments('digital')">💻 Digital Literacy</a>
+        <a href="#" class="btn" onclick="toggleAssignments('digital')">💻 Digital Literacy</a>
         <div id="digital" class="assignments">
             <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/findme1.html" target="_blank">Assignment 1: Find Me Report</a></div>
             <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/CLIDungoenCrawlerReport.html" target="_blank">Assignment 2 CLI Dungeon Crawler</a></div>
@@ -241,6 +241,7 @@
     </div>
 
     <script>
+        // Function to toggle assignment sections
         function toggleAssignments(id) {
             var section = document.getElementById(id);
             if (section.style.display === "block") {
@@ -250,6 +251,7 @@
             }
         }
 
+        // Function to save comments
         function saveComment() {
             var comment = document.getElementById("comment").value;
             if (comment) {
@@ -259,10 +261,44 @@
             }
         }
 
-        // Fix for initial display - this makes sure assignments are properly hidden initially
+        // Function to fetch grade data from Google Sheet
+        function fetchGradeData() {
+            const apiUrl = 'https://script.google.com/macros/s/AKfycbxf0vxKemXQBqFRSvZK2HoHjRKe3AlLEs3xQODNpqHMKUvy_s18YjA20CkYCk2YnSNP/exec';
+            
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update the grade display
+                    document.getElementById('grade-display').innerHTML = data.grade;
+                    
+                    // Format date for display
+                    const updateDate = new Date(data.lastUpdated);
+                    const formattedDate = `${updateDate.getDate().toString().padStart(2, '0')}.${(updateDate.getMonth() + 1).toString().padStart(2, '0')}.${updateDate.getFullYear()}, ${updateDate.getHours().toString().padStart(2, '0')}:${updateDate.getMinutes().toString().padStart(2, '0')}:${updateDate.getSeconds().toString().padStart(2, '0')}`;
+                    
+                    document.getElementById('last-updated').innerHTML = `Last updated: ${formattedDate}`;
+                })
+                .catch(error => {
+                    console.error('Error fetching grade data:', error);
+                    document.getElementById('grade-display').innerHTML = 'Error';
+                    document.getElementById('last-updated').innerHTML = 'Could not load data';
+                });
+        }
+
+        // Fix for initial display and load grade data
         window.onload = function() {
             document.getElementById('logistics').style.display = "none";
             document.getElementById('digital').style.display = "none";
+            
+            // Fetch grade data when page loads
+            fetchGradeData();
+            
+            // Set up periodic refresh (every 5 minutes)
+            setInterval(fetchGradeData, 300000);
         };
     </script>
 </body>
