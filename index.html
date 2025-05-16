@@ -121,34 +121,44 @@
         .star-container div:nth-child(9) { top: 60%; left: 40%; animation-duration: 4.5s; }
         .star-container div:nth-child(10) { top: 15%; left: 5%; animation-duration: 7s; }
         
-        /* Course Grade Section Styles - Simplified */
-        .grade-section {
+        /* Grade Section Styles */
+        .grades-container {
             position: absolute;
             top: 20px;
             right: 20px;
+            z-index: 100;
+        }
+        
+        .grade-section {
             background: rgba(0, 0, 0, 0.7);
             border-radius: 10px;
             padding: 15px;
             text-align: center;
-            width: 200px;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-            z-index: 100;
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            border-left: 4px solid #4d94ff;
+            width: 180px;
+        }
+        
+        .grade-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
         }
         
         .grade-title {
             font-size: 18px;
             margin-top: 0;
             margin-bottom: 10px;
-            color: #ff4d94;
+            color: #4d94ff;
         }
         
         .grade-value {
             font-size: 50px;
             font-weight: bold;
             margin: 15px 0;
-            color: #ff4d94;
+            color: #4d94ff;
         }
         
         .grade-date {
@@ -157,29 +167,21 @@
             margin-top: 5px;
         }
         
+        .loading {
+            font-style: italic;
+            color: #aaa;
+            font-size: 14px;
+        }
+        
         @media (max-width: 768px) {
-            .grade-section {
+            .grades-container {
                 position: relative;
                 top: auto;
                 right: auto;
                 margin: 20px auto;
-                width: 80%;
+                width: 100%;
+                max-width: 250px;
             }
-        }
-        
-        /* Loading animation for grade section */
-        .loading {
-            display: inline-block;
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #ff4d94;
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -189,13 +191,15 @@
         <div></div><div></div><div></div><div></div><div></div>
     </div>
     
-    <!-- DL Course Grade Section -->
-    <div class="grade-section">
-        <h3 class="grade-title">DL Current Course Grade</h3>
-        <div class="grade-value" id="grade-display">
-            <div class="loading"></div>
+    <!-- Single DL CCG Grade Section -->
+    <div class="grades-container">
+        <div class="grade-section dl-grade">
+            <h3 class="grade-title">DL CCG Score</h3>
+            <div class="grade-value" id="dl-grade">
+                <span class="loading">Loading...</span>
+            </div>
+            <div class="grade-date" id="dl-updated">Last updated: Loading...</div>
         </div>
-        <div class="grade-date" id="last-updated">Loading...</div>
     </div>
 
     <h1>Welcome to My Smart Hub</h1>
@@ -223,8 +227,8 @@
             <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/Virtual_library_analysis.html" target="_blank">Assignment 3 virtual library</a></div>
             <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/cryptography-showcase-enhanced.html" target="_blank">Assignment 4 Cryptography</a></div>
             <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/updated-cryptography-showcase.html" target="_blank">Assignment 5 Updated Cryptography with documentation</a></div>
-            <div class="assignment"><a href="#" target="_blank">Assignment 6</a></div>
-            <div class="assignment"><a href="#" target="_blank">Assignment 7</a></div>
+            <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/grade_breakdown.html" target="_blank">Assignment 6 CCGt</a></div>
+            <div class="assignment"><a href="https://jonycap.github.io/Snuggly-web-spot/apps_script_notes.html" target="_blank">Assignment 7 Backend Simulation</a></div>
             <div class="assignment"><a href="#" target="_blank">Assignment 8</a></div>
             <div class="assignment"><a href="#" target="_blank">Assignment 9</a></div>
             <div class="assignment"><a href="#" target="_blank">Assignment 10</a></div>
@@ -241,7 +245,30 @@
     </div>
 
     <script>
-        // Function to toggle assignment sections
+        // Fetch grades from Google Apps Script
+        const GRADES_API_URL = "https://script.google.com/macros/s/AKfycbyZt4t81_XD19AnzKft_Kuh1Sk_UmWJU2Ud6ikBDe_TYDqOBvRyIRzZBPFWd_N7PffX/exec";
+        
+        function fetchGrades() {
+            fetch(GRADES_API_URL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update only the DL CCG grade
+                    document.getElementById('dl-grade').textContent = data.dlGrade || '91';
+                    document.getElementById('dl-updated').textContent = 'Last updated: ' + (data.lastUpdated || '16.05.2025, 14:30:00');
+                })
+                .catch(error => {
+                    console.error('Error fetching grades:', error);
+                    // Set fallback values if fetch fails
+                    document.getElementById('dl-grade').textContent = '91';
+                    document.getElementById('dl-updated').textContent = 'Last updated: 16.05.2025, 14:30:00';
+                });
+        }
+
         function toggleAssignments(id) {
             var section = document.getElementById(id);
             if (section.style.display === "block") {
@@ -251,7 +278,6 @@
             }
         }
 
-        // Function to save comments
         function saveComment() {
             var comment = document.getElementById("comment").value;
             if (comment) {
@@ -261,65 +287,16 @@
             }
         }
 
-        // Function to fetch grade data from Google Sheet
-        function fetchGradeData() {
-            const apiUrl = 'https://script.google.com/macros/s/AKfycbyZt4t81_XD19AnzKft_Kuh1Sk_UmWJU2Ud6ikBDe_TYDqOBvRyIRzZBPFWd_N7PffX/exec';
-            
-            // Using JSONP approach with a script tag to bypass CORS
-            const script = document.createElement('script');
-            script.src = `${apiUrl}?callback=handleGradeData`;
-            document.body.appendChild(script);
-            
-            // Set a timeout to handle if the script doesn't load
-            setTimeout(() => {
-                if (document.getElementById('grade-display').textContent === 'Error' || 
-                    document.getElementById('grade-display').innerHTML.includes('loading')) {
-                    document.getElementById('grade-display').innerHTML = 'Error';
-                    document.getElementById('last-updated').innerHTML = 'Could not load data';
-                }
-            }, 10000); // 10 second timeout
-        }
-        
-        // Callback function for JSONP
-        function handleGradeData(data) {
-            try {
-                // Check if we have valid data
-                if (data && data.grade !== undefined) {
-                    // Update the grade display
-                    document.getElementById('grade-display').innerHTML = data.grade;
-                    
-                    // Format date for display
-                    let updateDate;
-                    if (data.lastUpdated) {
-                        updateDate = new Date(data.lastUpdated);
-                    } else {
-                        updateDate = new Date(); // Use current date if not provided
-                    }
-                    
-                    const formattedDate = `${updateDate.getDate().toString().padStart(2, '0')}.${(updateDate.getMonth() + 1).toString().padStart(2, '0')}.${updateDate.getFullYear()}, ${updateDate.getHours().toString().padStart(2, '0')}:${updateDate.getMinutes().toString().padStart(2, '0')}:${updateDate.getSeconds().toString().padStart(2, '0')}`;
-                    
-                    document.getElementById('last-updated').innerHTML = `Last updated: ${formattedDate}`;
-                } else {
-                    throw new Error('Invalid data received');
-                }
-            } catch (error) {
-                console.error('Error processing grade data:', error);
-                document.getElementById('grade-display').innerHTML = 'Error';
-                document.getElementById('last-updated').innerHTML = 'Could not load data';
-            }
-        }
-        }
-
-        // Fix for initial display and load grade data
+        // Initial setup
         window.onload = function() {
             document.getElementById('logistics').style.display = "none";
             document.getElementById('digital').style.display = "none";
             
-            // Fetch grade data when page loads
-            fetchGradeData();
+            // Fetch grades when page loads
+            fetchGrades();
             
-            // Set up periodic refresh (every 5 minutes)
-            setInterval(fetchGradeData, 300000);
+            // Refresh grades every 5 minutes (300000 ms)
+            setInterval(fetchGrades, 300000);
         };
     </script>
 </body>
